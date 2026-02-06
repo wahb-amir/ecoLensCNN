@@ -13,7 +13,6 @@ router = APIRouter()
 
 @router.post("/predict")
 async def predict_endpoint(request: Request, file: Optional[UploadFile] = File(None)):
-    # 0) Verify auth first; verifyAuth should raise HTTPException on failure
     claims = verifyAuth(request)
 
     pil_img = None

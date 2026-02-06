@@ -6,26 +6,28 @@ from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '../.env'))
 
-ACCESS_TOKEN_SECRET = os.getenv("ACCESS_TOKEN")
+ACCESS_TOKEN_SECRET = os.getenv("ACCESS_TOKEN_SECRET")
 
 if not ACCESS_TOKEN_SECRET:
-    raise RuntimeError("ACCESS_TOKEN environment variable is required")
+    raise RuntimeError("ACCESS_TOKEN_SECRET environment variable is required")
+
 
 def verifyAuth(request: Request) -> Dict[str, Any]:
-    auth_header = request.headers.get("authorization")
-    if not auth_header:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Missing Authorization header")
-
-    scheme, _, token = auth_header.partition(" ")
-    if scheme.lower() != "bearer" or not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Invalid Authorization header format. Use: Bearer <token>")
+    token = request.cookies.get("accessToken")
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing access token cookie",
+        )
 
     try:
         payload = jwt.decode(token, ACCESS_TOKEN_SECRET, algorithms=["HS256"])
         return payload
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
+        )
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )

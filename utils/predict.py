@@ -56,7 +56,7 @@ def cache_get(key: str) -> Optional[Dict]:
 # Model Loading Logic (single model)
 # -----------------------
 LOADED_MODEL: Optional[torch.nn.Module] = None
-MODEL_PATH = "./CNN/v4.pth"
+MODEL_PATH = "./CNN/efficientnet_b0_waste_classifier_v4.pth"
 
 def _strip_module_prefix(state_dict):
     return {k.replace("module.", ""): v for k, v in state_dict.items()}
